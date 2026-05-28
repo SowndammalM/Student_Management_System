@@ -127,11 +127,72 @@ def index():
 
     connection.close()
 
+    # ==============================
+    # DASHBOARD ANALYTICS
+    # ==============================
+
+    total_students = len(students)
+
+    pass_count = 0
+
+    fail_count = 0
+
+    a_plus_count = 0
+
+    a_count = 0
+
+    b_count = 0
+
+    c_count = 0
+
+    for student in students:
+
+        grade = student[7]
+
+        if grade == "Fail":
+
+            fail_count += 1
+
+        else:
+
+            pass_count += 1
+
+        if grade == "A+":
+
+            a_plus_count += 1
+
+        elif grade == "A":
+
+            a_count += 1
+
+        elif grade == "B":
+
+            b_count += 1
+
+        elif grade == "C":
+
+            c_count += 1
+
     return render_template(
 
         "index.html",
 
-        students=students
+        students=students,
+
+        total_students=total_students,
+
+        pass_count=pass_count,
+
+        fail_count=fail_count,
+
+        a_plus_count=a_plus_count,
+
+        a_count=a_count,
+
+        b_count=b_count,
+
+        c_count=c_count
+
     )
 # ==============================
 # ADD STUDENT

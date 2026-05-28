@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,9 +21,10 @@
 </head>
 
 <body>
-    <p class="text-center text-muted">Total Students: {{ students|length }}</p>
 
-    <nav class="navbar navbar-dark bg-dark">
+    <!-- Navbar -->
+
+    <nav class="navbar navbar-dark bg-dark px-4">
 
         <div class="container-fluid">
 
@@ -31,7 +33,8 @@
                 🎓 Student Management System
 
             </span>
-            <a href="/logout" class="btn btn-danger">
+
+            <a href="/logout" class="btn btn-danger btn-sm">
 
                 Logout
 
@@ -41,57 +44,189 @@
 
     </nav>
 
-    <div class="container">
+    <!-- Main Container -->
 
-        <div class="container-box">
+    <div class="container mt-4">
 
-            {% with messages = get_flashed_messages(with_categories=true) %}
+        <!-- Dashboard Cards -->
 
-            {% if messages %}
+        <div class="row g-4 mb-4">
 
-            {% for category, message in messages %}
+            <!-- Total Students -->
 
-            <div class="alert alert-{{ category }} alert-dismissible fade show">
+            <div class="col-md-3 col-sm-6">
 
-                {{ message }}
+                <div class="card shadow-sm border-0 text-center p-3">
 
-                <button type="button" class="btn-close" data-bs-dismiss="alert">
+                    <h6 class="text-muted">
+
+                        Total Students
+
+                    </h6>
+
+                    <h2 class="text-primary fw-bold">
+
+                        {{ total_students }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Passed -->
+
+            <div class="col-md-3 col-sm-6">
+
+                <div class="card shadow-sm border-0 text-center p-3">
+
+                    <h6 class="text-muted">
+
+                        Passed
+
+                    </h6>
+
+                    <h2 class="text-success fw-bold">
+
+                        {{ pass_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- Failed -->
+
+            <div class="col-md-3 col-sm-6">
+
+                <div class="card shadow-sm border-0 text-center p-3">
+
+                    <h6 class="text-muted">
+
+                        Failed
+
+                    </h6>
+
+                    <h2 class="text-danger fw-bold">
+
+                        {{ fail_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <!-- A+ Students -->
+
+            <div class="col-md-3 col-sm-6">
+
+                <div class="card shadow-sm border-0 text-center p-3">
+
+                    <h6 class="text-muted">
+
+                        A+ Students
+
+                    </h6>
+
+                    <h2 class="text-warning fw-bold">
+
+                        {{ a_plus_count }}
+
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Chart Section -->
+
+        <div class="card shadow-sm border-0 p-4 mb-4">
+
+            <h3 class="text-center mb-4">
+
+                📊 Grade Distribution
+
+            </h3>
+
+            <div style="max-width: 400px; margin: auto;">
+
+                <canvas id="gradeChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- Flash Messages -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+        {% for category, message in messages %}
+
+        <div class="alert alert-{{ category }} alert-dismissible fade show">
+
+            {{ message }}
+
+            <button type="button" class="btn-close" data-bs-dismiss="alert">
+
+            </button>
+
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+        {% endwith %}
+
+        <!-- Heading -->
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h2>
+
+                🎓 Student Records
+
+            </h2>
+
+            <a href="/add" class="btn btn-primary">
+
+                Add Student
+
+            </a>
+
+        </div>
+
+        <!-- Search Form -->
+
+        <form method="GET" class="mb-4">
+
+            <div class="input-group">
+
+                <input type="text" name="search" class="form-control" placeholder="Search by Name or ID">
+
+                <button class="btn btn-dark">
+
+                    Search
+
                 </button>
 
             </div>
 
-            {% endfor %}
+        </form>
 
-            {% endif %}
+        <!-- Student Table -->
 
-            {% endwith %}
+        {% if students %}
 
-            <h1 class="heading">🎓 Student Management System</h1>
+        <div class="table-responsive">
 
-            <div class="d-flex justify-content-end mb-3">
-
-                <a href="/add" class="btn btn-primary">
-                    Add Student
-                </a>
-
-            </div>
-            <form method="GET" class="mb-3">
-
-                <div class="input-group">
-
-                    <input type="text" name="search" class="form-control" placeholder="Search by Name or ID">
-
-                    <button class="btn btn-dark">
-
-                        Search
-
-                    </button>
-
-                </div>
-
-            </form>
-            {% if students %}
-            <table class="table table-bordered table-striped">
+            <table class="table table-bordered table-striped table-hover">
 
                 <thead class="table-dark">
 
@@ -144,11 +279,15 @@
                         <td>
 
                             <a href="/edit/{{ student[0] }}" class="btn btn-warning btn-sm">
+
                                 Edit
+
                             </a>
 
                             <a href="/delete/{{ student[0] }}" class="btn btn-danger btn-sm">
+
                                 Delete
+
                             </a>
 
                         </td>
@@ -158,23 +297,91 @@
                     {% endfor %}
 
                 </tbody>
-                {% else %}
-
-                <div class="alert alert-info text-center">
-
-                    No students found
-
-                </div>
-
-                {% endif %}
 
             </table>
 
         </div>
 
+        {% else %}
+
+        <div class="alert alert-info text-center">
+
+            No students found
+
+        </div>
+
+        {% endif %}
+
     </div>
 
+    <!-- Bootstrap JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Chart JS -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Pie Chart -->
+
+    <script>
+
+        const ctx = document.getElementById('gradeChart');
+
+        new Chart(ctx, {
+
+            type: 'pie',
+
+            data: {
+
+                labels: ['A+', 'A', 'B', 'C', 'Fail'],
+
+                datasets: [{
+
+                    data: [
+
+                        {{ a_plus_count }},
+
+                {{ a_count }},
+
+                        {{ b_count }},
+
+            {{ c_count }},
+
+            {{ fail_count }}
+
+                    ],
+
+            backgroundColor: [
+
+            '#198754',
+
+            '#0d6efd',
+
+            '#ffc107',
+
+            '#fd7e14',
+
+            '#dc3545'
+
+        ]
+
+                }]
+
+            },
+
+            options: {
+
+            responsive: true,
+
+            maintainAspectRatio: true
+
+        }
+
+        });
+
+    </script>
+
 </body>
 
 </html>
