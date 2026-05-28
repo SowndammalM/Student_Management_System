@@ -117,6 +117,108 @@ def add_student():
 
     return render_template("add_student.html")
 
+# ==============================
+# DELETE STUDENT
+# ==============================
+
+@app.route("/delete/<student_id>")
+
+def delete_student(student_id):
+
+    students = load_students()
+
+    updated_students = []
+
+    for student in students:
+
+        if student["id"] != student_id:
+
+            updated_students.append(student)
+
+    save_students(updated_students)
+
+    return redirect("/")
+
+# ==============================
+# EDIT STUDENT
+# ==============================
+
+@app.route("/edit/<student_id>", methods=["GET", "POST"])
+
+def edit_student(student_id):
+
+    students = load_students()
+
+    student_data = None
+
+    for student in students:
+
+        if student["id"] == student_id:
+
+            student_data = student
+
+            break
+
+    # UPDATE LOGIC
+
+    if request.method == "POST":
+
+        student_data["name"] = request.form["name"]
+
+        student_data["python"] = int(request.form["python"])
+
+        student_data["java"] = int(request.form["java"])
+
+        student_data["dbms"] = int(request.form["dbms"])
+
+        # Recalculate
+
+        total = (
+
+            student_data["python"]
+
+            + student_data["java"]
+
+            + student_data["dbms"]
+
+        )
+
+        average = total / 3
+
+        # Grade
+
+        if average >= 90:
+            grade = "A+"
+
+        elif average >= 75:
+            grade = "A"
+
+        elif average >= 60:
+            grade = "B"
+
+        elif average >= 50:
+            grade = "C"
+
+        else:
+            grade = "Fail"
+
+        student_data["total"] = total
+
+        student_data["average"] = average
+
+        student_data["grade"] = grade
+
+        save_students(students)
+
+        return redirect("/")
+
+    return render_template(
+
+        "edit_student.html",
+
+        student=student_data
+    )
+
 
 # ==============================
 # RUN SERVER

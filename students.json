@@ -2,11 +2,11 @@
     {
         "id": "1",
         "name": "Moumitha",
-        "python": 80,
+        "python": 87,
         "java": 90,
         "dbms": 81,
-        "total": 251,
-        "average": 83.66666666666667,
+        "total": 258,
+        "average": 86.0,
         "grade": "A"
     }
 ]
