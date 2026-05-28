@@ -1,41 +1,99 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Student Management System</title>
+
+    <!-- Bootstrap CSS -->
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
 </head>
 
 <body>
 
-    <h1>Student Management System</h1>
+    <div class="container">
 
-    <a href="/add">Add Student</a>
+        <div class="container-box">
 
-    <hr>
+            <h1 class="heading">🎓 Student Management System</h1>
 
-    {% for student in students %}
+            <div class="d-flex justify-content-end mb-3">
 
-        <h3>{{ student.name }}</h3>
+                <a href="/add" class="btn btn-primary">
+                    Add Student
+                </a>
 
-        <p>ID: {{ student.id }}</p>
+            </div>
 
-        <p>Python: {{ student.python }}</p>
+            <table class="table table-bordered table-striped">
 
-        <p>Java: {{ student.java }}</p>
+                <thead class="table-dark">
 
-        <p>DBMS: {{ student.dbms }}</p>
+                    <tr>
 
-        <p>Total: {{ student.total }}</p>
+                        <th>ID</th>
 
-        <p>Average: {{ student.average }}</p>
+                        <th>Name</th>
 
-        <p>Grade: {{ student.grade }}</p>
+                        <th>Python</th>
 
-        <hr>
+                        <th>Java</th>
 
-    {% endfor %}
+                        <th>DBMS</th>
+
+                        <th>Total</th>
+
+                        <th>Average</th>
+
+                        <th>Grade</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <td>{{ student.id }}</td>
+
+                        <td>{{ student.name }}</td>
+
+                        <td>{{ student.python }}</td>
+
+                        <td>{{ student.java }}</td>
+
+                        <td>{{ student.dbms }}</td>
+
+                        <td>{{ student.total }}</td>
+
+                        <td>{{ student.average }}</td>
+
+                        <td>{{ student.grade }}</td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </body>
 

@@ -1,0 +1,12 @@
+[
+    {
+        "id": "1",
+        "name": "Moumitha",
+        "python": 80,
+        "java": 90,
+        "dbms": 81,
+        "total": 251,
+        "average": 83.66666666666667,
+        "grade": "A"
+    }
+]
