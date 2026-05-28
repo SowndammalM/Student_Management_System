@@ -1,3 +1,12 @@
+from flask import send_file
+
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+
+from reportlab.lib import colors
+
+from reportlab.platypus import Paragraph, Spacer
+
+from reportlab.lib.styles import getSampleStyleSheet
 
 from multiprocessing import connection
 
@@ -429,6 +438,116 @@ def edit_student(student_id):
         "edit_student.html",
 
         student=student
+    )
+
+# ==============================
+# EXPORT PDF
+# ==============================
+
+@app.route("/export/pdf")
+
+def export_pdf():
+
+    connection = sqlite3.connect("database.db")
+
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM students")
+
+    students = cursor.fetchall()
+
+    connection.close()
+
+    pdf_file = "student_report.pdf"
+
+    doc = SimpleDocTemplate(pdf_file)
+
+    elements = []
+
+    styles = getSampleStyleSheet()
+
+    title = Paragraph(
+
+        "Student Management Report",
+
+        styles['Title']
+
+    )
+
+    elements.append(title)
+
+    elements.append(Spacer(1, 20))
+
+    data = [[
+
+        "ID",
+
+        "Name",
+
+        "Python",
+
+        "Java",
+
+        "DBMS",
+
+        "Total",
+
+        "Average",
+
+        "Grade"
+
+    ]]
+
+    for student in students:
+
+        data.append([
+
+            student[0],
+
+            student[1],
+
+            student[2],
+
+            student[3],
+
+            student[4],
+
+            student[5],
+
+            round(student[6], 2),
+
+            student[7]
+
+        ])
+
+    table = Table(data)
+
+    table.setStyle(TableStyle([
+
+        ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+
+    ]))
+
+    elements.append(table)
+
+    doc.build(elements)
+
+    return send_file(
+
+        pdf_file,
+
+        as_attachment=True
+
     )
 
 
