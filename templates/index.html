@@ -31,6 +31,11 @@
                 🎓 Student Management System
 
             </span>
+            <a href="/logout" class="btn btn-danger">
+
+                Logout
+
+            </a>
 
         </div>
 
@@ -120,29 +125,29 @@
 
                     <tr>
 
-                        <td>{{ student.id }}</td>
+                        <td>{{ student[0] }}</td>
 
-                        <td>{{ student.name }}</td>
+                        <td>{{ student[1] }}</td>
 
-                        <td>{{ student.python }}</td>
+                        <td>{{ student[2] }}</td>
 
-                        <td>{{ student.java }}</td>
+                        <td>{{ student[3] }}</td>
 
-                        <td>{{ student.dbms }}</td>
+                        <td>{{ student[4] }}</td>
 
-                        <td>{{ student.total }}</td>
+                        <td>{{ student[5] }}</td>
 
-                        <td>{{ student.average }}</td>
+                        <td>{{ student[6] }}</td>
 
-                        <td>{{ student.grade }}</td>
+                        <td>{{ student[7] }}</td>
 
                         <td>
 
-                            <a href="/edit/{{ student.id }}" class="btn btn-warning btn-sm">
+                            <a href="/edit/{{ student[0] }}" class="btn btn-warning btn-sm">
                                 Edit
                             </a>
 
-                            <a href="/delete/{{ student.id }}" class="btn btn-danger btn-sm">
+                            <a href="/delete/{{ student[0] }}" class="btn btn-danger btn-sm">
                                 Delete
                             </a>
 

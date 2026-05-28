@@ -1,36 +1,95 @@
-from flask import Flask, render_template, request, redirect, flask
-import json
+
+from multiprocessing import connection
+
+from flask import Flask, render_template, request, redirect, flash, session 
+
+import sqlite3
+
 
 app = Flask(__name__)
 app.secret_key = "student_secret_key"  # Required for flashing messages
 
 # ==============================
-# LOAD STUDENTS
+# CREATE DATABASE
 # ==============================
 
-def load_students():
+def init_db():
 
-    try:
+    connection = sqlite3.connect("database.db")
 
-        with open("students.json", "r") as file:
+    cursor = connection.cursor()
 
-            return json.load(file)
+    cursor.execute("""
 
-    except:
+        CREATE TABLE IF NOT EXISTS students (
 
-        return []
+            id TEXT PRIMARY KEY,
 
+            name TEXT,
+
+            python INTEGER,
+
+            java INTEGER,
+
+            dbms INTEGER,
+
+            total INTEGER,
+
+            average REAL,
+
+            grade TEXT
+
+        )
+
+    """)
+
+    connection.commit()
+
+    connection.close()
 
 # ==============================
-# SAVE STUDENTS
+# LOGIN
 # ==============================
 
-def save_students(students):
+@app.route("/login", methods=["GET", "POST"])
 
-    with open("students.json", "w") as file:
+def login():
 
-        json.dump(students, file, indent=4)
+    if request.method == "POST":
 
+        username = request.form["username"]
+
+        password = request.form["password"]
+
+        # Simple Login
+
+        if username == "admin" and password == "admin123":
+
+            session["user"] = username
+
+            flash("Login Successful!", "success")
+
+            return redirect("/")
+
+        else:
+
+            flash("Invalid Username or Password", "danger")
+
+    return render_template("login.html")
+
+# ==============================
+# LOGOUT
+# ==============================
+
+@app.route("/logout")
+
+def logout():
+
+    session.pop("user", None)
+
+    flash("Logged Out Successfully!", "warning")
+
+    return redirect("/login")
 
 # ==============================
 # HOME PAGE
@@ -40,31 +99,40 @@ def save_students(students):
 
 def index():
 
-    students = load_students()
+    if "user" not in session:
+
+        return redirect("/login")
+
+    connection = sqlite3.connect("database.db")
+
+    cursor = connection.cursor()
 
     search = request.args.get("search")
 
     if search:
 
-        filtered_students = []
+        cursor.execute("""
 
-        for student in students:
+            SELECT * FROM students
 
-            if (
+            WHERE name LIKE ? OR id LIKE ?
 
-                search.lower() in student["name"].lower()
+        """, (f"%{search}%", f"%{search}%"))
 
-                or search in student["id"]
+    else:
 
-            ):
+        cursor.execute("SELECT * FROM students")
 
-                filtered_students.append(student)
+    students = cursor.fetchall()
 
-        students = filtered_students
+    connection.close()
 
-    return render_template("index.html", students=students)
+    return render_template(
 
+        "index.html",
 
+        students=students
+    )
 # ==============================
 # ADD STUDENT
 # ==============================
@@ -72,6 +140,8 @@ def index():
 @app.route("/add", methods=["GET", "POST"])
 
 def add_student():
+    if "user" not in session:
+        return redirect("/login")
 
     if request.method == "POST":
 
@@ -106,35 +176,46 @@ def add_student():
         else:
             grade = "Fail"
 
-        # Student Data
+        # ==============================
+        # DATABASE INSERT
+        # ==============================
 
-        student = {
+        connection = sqlite3.connect("database.db")
 
-            "id": student_id,
+        cursor = connection.cursor()
 
-            "name": student_name,
+        cursor.execute("""
 
-            "python": python_mark,
+            INSERT INTO students
 
-            "java": java_mark,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 
-            "dbms": dbms_mark,
+        """, (
 
-            "total": total,
+            student_id,
 
-            "average": average,
+            student_name,
 
-            "grade": grade
-        }
+            python_mark,
 
-        students = load_students()
+            java_mark,
 
-        students.append(student)
+            dbms_mark,
 
-        save_students(students)
+            total,
+
+            average,
+
+            grade
+
+        ))
+
+        connection.commit()
+
+        connection.close()
 
         flash("Student Added Successfully!", "success")
-        
+
         return redirect("/")
 
     return render_template("add_student.html")
@@ -147,19 +228,26 @@ def add_student():
 
 def delete_student(student_id):
 
-    students = load_students()
+    if "user" not in session:
+        return redirect("/login")
 
-    updated_students = []
+    connection = sqlite3.connect("database.db")
 
-    for student in students:
+    cursor = connection.cursor()
 
-        if student["id"] != student_id:
+    cursor.execute(
 
-            updated_students.append(student)
+        "DELETE FROM students WHERE id = ?",
 
-    save_students(updated_students)
+        (student_id,)
 
-    flash("Student Deleted Successfully!", "success")
+    )
+
+    connection.commit()
+
+    connection.close()
+
+    flash("Student Deleted Successfully!", "danger")
 
     return redirect("/")
 
@@ -171,41 +259,38 @@ def delete_student(student_id):
 
 def edit_student(student_id):
 
-    students = load_students()
+    if "user" not in session:
+        return redirect("/login")
 
-    student_data = None
+    connection = sqlite3.connect("database.db")
 
-    for student in students:
+    cursor = connection.cursor()
 
-        if student["id"] == student_id:
+    # GET STUDENT
 
-            student_data = student
+    cursor.execute(
 
-            break
+        "SELECT * FROM students WHERE id = ?",
 
-    # UPDATE LOGIC
+        (student_id,)
+
+    )
+
+    student = cursor.fetchone()
+
+    # UPDATE
 
     if request.method == "POST":
 
-        student_data["name"] = request.form["name"]
+        name = request.form["name"]
 
-        student_data["python"] = int(request.form["python"])
+        python_mark = int(request.form["python"])
 
-        student_data["java"] = int(request.form["java"])
+        java_mark = int(request.form["java"])
 
-        student_data["dbms"] = int(request.form["dbms"])
+        dbms_mark = int(request.form["dbms"])
 
-        # Recalculate
-
-        total = (
-
-            student_data["python"]
-
-            + student_data["java"]
-
-            + student_data["dbms"]
-
-        )
+        total = python_mark + java_mark + dbms_mark
 
         average = total / 3
 
@@ -226,29 +311,71 @@ def edit_student(student_id):
         else:
             grade = "Fail"
 
-        student_data["total"] = total
+        cursor.execute("""
 
-        student_data["average"] = average
+            UPDATE students
 
-        student_data["grade"] = grade
+            SET
 
-        save_students(students)
+                name = ?,
+
+                python = ?,
+
+                java = ?,
+
+                dbms = ?,
+
+                total = ?,
+
+                average = ?,
+
+                grade = ?
+
+            WHERE id = ?
+
+        """, (
+
+            name,
+
+            python_mark,
+
+            java_mark,
+
+            dbms_mark,
+
+            total,
+
+            average,
+
+            grade,
+
+            student_id
+
+        ))
+
+        connection.commit()
+
+        connection.close()
 
         flash("Student Updated Successfully!", "warning")
 
         return redirect("/")
 
+    connection.close()
+
     return render_template(
 
         "edit_student.html",
 
-        student=student_data
+        student=student
     )
 
 
 # ==============================
 # RUN SERVER
 # ==============================
+
+init_db()
 
 if __name__ == "__main__":
 
