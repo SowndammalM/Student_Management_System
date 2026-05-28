@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Student Management System</title>
+
+</head>
+
+<body>
+
+    <h1>Student Management System</h1>
+
+    <a href="/add">Add Student</a>
+
+    <hr>
+
+    {% for student in students %}
+
+        <h3>{{ student.name }}</h3>
+
+        <p>ID: {{ student.id }}</p>
+
+        <p>Python: {{ student.python }}</p>
+
+        <p>Java: {{ student.java }}</p>
+
+        <p>DBMS: {{ student.dbms }}</p>
+
+        <p>Total: {{ student.total }}</p>
+
+        <p>Average: {{ student.average }}</p>
+
+        <p>Grade: {{ student.grade }}</p>
+
+        <hr>
+
+    {% endfor %}
+
+</body>
+
+</html>
