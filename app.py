@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, flask
 import json
 
 app = Flask(__name__)
-
+app.secret_key = "student_secret_key"  # Required for flashing messages
 
 # ==============================
 # LOAD STUDENTS
@@ -41,6 +41,26 @@ def save_students(students):
 def index():
 
     students = load_students()
+
+    search = request.args.get("search")
+
+    if search:
+
+        filtered_students = []
+
+        for student in students:
+
+            if (
+
+                search.lower() in student["name"].lower()
+
+                or search in student["id"]
+
+            ):
+
+                filtered_students.append(student)
+
+        students = filtered_students
 
     return render_template("index.html", students=students)
 
@@ -113,6 +133,8 @@ def add_student():
 
         save_students(students)
 
+        flash("Student Added Successfully!", "success")
+        
         return redirect("/")
 
     return render_template("add_student.html")
@@ -136,6 +158,8 @@ def delete_student(student_id):
             updated_students.append(student)
 
     save_students(updated_students)
+
+    flash("Student Deleted Successfully!", "success")
 
     return redirect("/")
 
@@ -209,6 +233,8 @@ def edit_student(student_id):
         student_data["grade"] = grade
 
         save_students(students)
+
+        flash("Student Updated Successfully!", "warning")
 
         return redirect("/")
 
